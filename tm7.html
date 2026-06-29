@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="theme-color" content="#f0ede8"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="TM7"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icon.png"/>
+<title>TM7 · Ernährungs-Coach</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#f0ede8;color:#111;font-family:'Georgia','Times New Roman',serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none;font-size:16px}
+button{font-family:inherit;cursor:pointer}
+input,select{font-family:inherit}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:#c0bdb5;border-radius:2px}
+#app{max-width:680px;margin:0 auto;min-height:100dvh}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(240,237,232,.97);backdrop-filter:blur(12px);border-bottom:2px solid #d4d0c8;padding:13px 16px;display:flex;align-items:center;justify-content:space-between}
+.topbar-left{min-width:0}
+.topbar-sub{font-size:11px;letter-spacing:.2em;color:#666;font-family:'Courier New',monospace;text-transform:uppercase;margin-bottom:2px;font-weight:600}
+.topbar-title{font-size:17px;color:#111}
+.topbar-right{display:flex;gap:8px;align-items:center;flex-shrink:0;margin-left:10px}
+.nav-link{font-size:12px;font-family:'Courier New',monospace;color:#444;text-decoration:none;padding:7px 13px;border:2px solid #bbb;border-radius:14px;white-space:nowrap;font-weight:600}
+.nav-link:hover{color:#111;border-color:#888}
+.nav-link.active{background:#111;color:#fff;border-color:#111}
+.content{padding:16px 16px 40px}
+.card{background:#fff;border:1.5px solid #d4d0c8;border-radius:14px;padding:18px;margin-bottom:14px;box-shadow:0 2px 6px rgba(0,0,0,.07)}
+.card-title{font-size:12px;letter-spacing:.18em;color:#555;text-transform:uppercase;font-family:'Courier New',monospace;margin-bottom:14px;font-weight:700}
+.subtab-row{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.subtab{padding:8px 16px;border-radius:16px;border:2px solid #bbb;font-size:12px;font-family:'Courier New',monospace;cursor:pointer;background:#fff;color:#444;transition:all .15s;font-weight:600}
+.subtab.active{background:#111;border-color:#111;color:#fff}
+.btn-primary{background:#111;color:#fff;border:none;border-radius:9px;padding:12px 16px;font-size:13px;font-family:'Courier New',monospace;letter-spacing:.06em;cursor:pointer;width:100%;margin-top:10px;font-weight:700;text-align:center}
+.btn-primary.green{background:#1b5e20}
+.btn-sm{padding:9px 14px;border-radius:9px;font-size:12px;font-family:'Courier New',monospace;border:1.5px solid #bbb;background:#f5f2ed;color:#333;cursor:pointer;font-weight:600;text-align:center}
+.btn-sm:hover{background:#e8e4dc}
+.btn-sm.active-btn{background:#111;color:#fff;border-color:#111}
+.season-badge{display:inline-block;font-size:9px;font-family:'Courier New',monospace;padding:3px 8px;border-radius:9px;font-weight:700;margin-right:5px}
+.season-sommer{background:#fff3e0;color:#bf360c;border:1.5px solid #ffb74d}
+.season-herbst{background:#fbe9e7;color:#bf360c;border:1.5px solid #ff8a65}
+.season-winter{background:#e3f2fd;color:#0d47a1;border:1.5px solid #90caf9}
+.season-fruehling{background:#e8f5e9;color:#1b5e20;border:1.5px solid #a5d6a7}
+.season-ganzjahr{background:#f5f2ed;color:#555;border:1.5px solid #ccc}
+.type-badge{display:inline-block;font-size:9px;font-family:'Courier New',monospace;padding:3px 8px;border-radius:9px;font-weight:700;background:#e3f2fd;color:#0d47a1;border:1.5px solid #90caf9}
+.type-badge.snack{background:#f3e5f5;color:#4a148c;border-color:#ce93d8}
+.recipe-card{background:#fff;border:1.5px solid #d4d0c8;border-radius:14px;padding:17px;margin-bottom:13px;box-shadow:0 2px 5px rgba(0,0,0,.06)}
+.recipe-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:8px}
+.recipe-name{font-size:16px;color:#111;font-weight:400;flex:1}
+.recipe-badges{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.recipe-ingredients-label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#888;font-family:'Courier New',monospace;font-weight:700;margin-bottom:6px}
+.recipe-ingredient{font-size:14px;color:#222;padding:5px 0;border-bottom:1px solid #ece8e0;display:flex;justify-content:space-between}
+.recipe-ingredient:last-child{border-bottom:none}
+.recipe-ingredient-amt{font-family:'Courier New',monospace;font-size:12px;color:#666;font-weight:600;flex-shrink:0;margin-left:10px}
+.recipe-steps{margin-top:12px}
+.recipe-step{font-size:13px;font-family:'Courier New',monospace;color:#333;background:#f5f2ed;border-radius:7px;padding:9px 11px;margin-bottom:6px;line-height:1.55}
+.recipe-step-num{color:#1565c0;font-weight:700;margin-right:6px}
+.seasonal-note{font-size:12px;font-family:'Courier New',monospace;color:#1b5e20;background:#e8f5e9;border:1.5px solid #a5d6a7;border-radius:8px;padding:8px 11px;margin-top:10px}
+.portion-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;justify-content:center}
+.portion-btn{width:38px;height:38px;border-radius:9px;border:1.5px solid #bbb;background:#f5f2ed;font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.portion-btn:hover{background:#e8e4dc}
+.portion-val{font-size:22px;font-family:'Courier New',monospace;font-weight:700;min-width:60px;text-align:center}
+.recipe-detail-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:flex;align-items:flex-end;justify-content:center}
+.recipe-detail-sheet{background:#f0ede8;width:100%;max-width:680px;max-height:92vh;overflow-y:auto;border-radius:18px 18px 0 0;padding:20px 16px 30px}
+.detail-close{background:#111;color:#fff;border:none;border-radius:9px;padding:11px;font-size:13px;font-family:'Courier New',monospace;font-weight:700;width:100%;margin-top:14px;cursor:pointer}
+.empty-note{font-size:14px;color:#888;text-align:center;padding:22px 0;font-family:'Courier New',monospace}
+.version-tag{font-size:10px;color:#bbb;font-family:'Courier New',monospace;text-align:center;padding:10px 0}
+.success-banner{background:#e8f5e9;border:1.5px solid #a5d6a7;border-radius:11px;padding:13px 15px;margin-bottom:14px;font-size:13px;font-family:'Courier New',monospace;color:#1b5e20;font-weight:600;text-align:center}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="foods.js"></script>
+<script src="tm7-recipes.js"></script>
+<script>
+// ═══ STORAGE (geteilt mit index.html / coach.html) ═══════════════════
+const N_KEY='nutrition_app_data';
+function ls(k,fb){try{const v=localStorage.getItem(k);return v?JSON.parse(v):fb;}catch{return fb;}}
+function lss(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+function loadN(){return ls(N_KEY,{});}
+function saveN(patch){const d={...loadN(),...patch,_version:2,_updated:new Date().toISOString()};lss(N_KEY,d);}
+function todayKey(){return new Date().toISOString().split('T')[0];}
+function timeNow(){return new Date().toLocaleTimeString('de',{hour:'2-digit',minute:'2-digit'});}
+function getTodayData(){
+  const d=loadN(),days=d.days||{},today=todayKey();
+  if(!days[today])days[today]={trainingType:'rest',meals:[]};
+  return days[today];
+}
+function saveTodayData(dayObj){
+  const d=loadN();
+  if(!d.days)d.days={};
+  d.days[todayKey()]=dayObj;
+  saveN({days:d.days});
+}
+
+// ═══ FOOD LOOKUP (gleiche Logik wie index.html, eigenständig kopiert) ═
+function normalize(s){
+  return (s||'').toLowerCase().replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss').replace(/[^a-z0-9\s]/g,'').trim();
+}
+function findFood(name){
+  const q=normalize(name);
+  const custom=loadN().customFoods||{};
+  for(const cf of Object.values(custom)){if(normalize(cf.n)===q||(cf.s||[]).some(s=>normalize(s)===q))return cf;}
+  for(const f of FOODS){for(const s of[f.n,...(f.s||[])]){if(normalize(s)===q)return f;}}
+  for(const cf of Object.values(custom)){const cn=normalize(cf.n);if(q.includes(cn)||cn.includes(q))return cf;}
+  for(const f of FOODS){for(const s of[f.n,...(f.s||[])]){const sn=normalize(s);if(q.includes(sn)||sn.includes(q))return f;}}
+  return null;
+}
+function calcNutritionFromIngredients(ingredients,portions){
+  const sum={k:0,p:0,c:0,f:0,fi:0,mg:0,ca:0,fe:0,zn:0,po:0,o3:0,vd:0};
+  const missing=[];
+  ingredients.forEach(ing=>{
+    const food=findFood(ing.item);
+    const grams=(ing.grams||0)*portions;
+    if(food){
+      const r=grams/100;
+      Object.keys(sum).forEach(key=>{sum[key]+=(food[key]||0)*r;});
+    } else {
+      missing.push(ing.item);
+    }
+  });
+  return{sum,missing};
+}
+
+// ═══ SEASON HELPER ════════════════════════════════════════════════
+function currentSeason(){
+  const m=new Date().getMonth()+1; // 1-12
+  if(m>=3&&m<=5) return'fruehling';
+  if(m>=6&&m<=8) return'sommer';
+  if(m>=9&&m<=11) return'herbst';
+  return'winter';
+}
+const SEASON_LABELS={sommer:'Sommer',herbst:'Herbst',winter:'Winter',fruehling:'Frühling',ganzjahr:'Ganzjahr'};
+
+function recipeMatchesSeason(r){
+  if(!r.season||r.season.includes('ganzjahr')) return true;
+  return r.season.includes(currentSeason());
+}
+
+// ═══ STATE ════════════════════════════════════════════════════════
+const S={
+  tab:'mittag', // mittag | snack
+  shownIds:[],  // zuletzt gezeigte Rezept-IDs (für "Neue Vorschläge")
+  detailRecipe:null,
+  detailPortions:2,
+  logSuccess:'',
+};
+
+function getInitialPool(type){
+  const seasonal=TM7_RECIPES.filter(r=>r.type===type&&recipeMatchesSeason(r));
+  return seasonal.length>=3?seasonal:TM7_RECIPES.filter(r=>r.type===type);
+}
+
+function pickRecipes(type,excludeIds){
+  excludeIds=excludeIds||[];
+  let pool=getInitialPool(type);
+  const filtered=pool.filter(r=>!excludeIds.includes(r.id));
+  const finalPool=filtered.length>=3?filtered:pool;
+  // einfache, leichte Variation: shuffle + erste 3
+  const shuffled=[...finalPool].sort(()=>Math.random()-0.5);
+  return shuffled.slice(0,3);
+}
+
+let currentShown={mittag:[],snack:[]};
+function ensureShown(type){
+  if(currentShown[type].length===0){
+    currentShown[type]=pickRecipes(type,[]);
+  }
+  return currentShown[type];
+}
+
+// ═══ RENDER ═══════════════════════════════════════════════════════
+function render(){
+  document.getElementById('app').innerHTML=renderHeader()+`<div class="content">${renderBody()}</div>`+renderDetailOverlay();
+}
+
+function renderHeader(){
+  return`<div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-sub">TM7 Rezeptsystem</div>
+      <div class="topbar-title">${SEASON_LABELS[currentSeason()]} · Katalog</div>
+    </div>
+    <div class="topbar-right">
+      <a href="index.html" class="nav-link">Log</a>
+      <a href="coach.html" class="nav-link">Coach</a>
+      <a href="tm7.html" class="nav-link active">TM7</a>
+      <a href="settings.html" class="nav-link">⚙</a>
+    </div>
+  </div>`;
+}
+
+function renderBody(){
+  const shown=ensureShown(S.tab);
+  return`
+  ${S.logSuccess?`<div class="success-banner">✓ ${S.logSuccess}</div>`:''}
+
+  <div class="subtab-row">
+    <button class="subtab${S.tab==='mittag'?' active':''}" onclick="switchTab('mittag')">🍲 Mittagessen</button>
+    <button class="subtab${S.tab==='snack'?' active':''}" onclick="switchTab('snack')">🥨 Snacks</button>
+  </div>
+
+  <button class="btn-sm" style="width:100%" onclick="refreshRecipes()">🔄 Neue Vorschläge</button>
+
+  <div style="margin-top:16px">
+    ${shown.map(r=>renderRecipeCard(r)).join('')}
+  </div>
+
+  <div style="display:flex;gap:8px;margin-top:14px">
+    <button class="btn-sm" style="flex:1" onclick="updateApp()">🔄 App aktualisieren</button>
+  </div>
+
+  <div class="version-tag">TM7-Rezeptdatenbank v${TM7_RECIPES_VERSION} · ${TM7_RECIPES.length} Rezepte gesamt</div>`;
+}
+
+function renderRecipeCard(r){
+  const seasonBadges=(r.season||['ganzjahr']).map(s=>`<span class="season-badge season-${s}">${SEASON_LABELS[s]||s}</span>`).join('');
+  return`<div class="recipe-card" onclick="openDetail('${r.id}')" style="cursor:pointer">
+    <div class="recipe-header">
+      <div class="recipe-name">${r.name}</div>
+      <span class="type-badge${r.type==='snack'?' snack':''}">${r.type==='snack'?'Snack':'Mittag'}</span>
+    </div>
+    <div class="recipe-badges">${seasonBadges}</div>
+    <div style="font-size:12px;font-family:'Courier New',monospace;color:#888">
+      ${(r.ingredients||[]).length} Zutaten · ${(r.tm7Steps||[]).length} Schritte
+    </div>
+  </div>`;
+}
+
+function renderDetailOverlay(){
+  if(!S.detailRecipe) return'';
+  const r=TM7_RECIPES.find(x=>x.id===S.detailRecipe);
+  if(!r) return'';
+  const portions=S.detailPortions;
+  const seasonBadges=(r.season||['ganzjahr']).map(s=>`<span class="season-badge season-${s}">${SEASON_LABELS[s]||s}</span>`).join('');
+
+  let seasonalNote='';
+  if(r.seasonalSwap){
+    const season=currentSeason();
+    const alt=r.seasonalSwap.alternativen[season];
+    if(alt&&alt!==r.seasonalSwap.von){
+      seasonalNote=`<div class="seasonal-note">🍃 Saisonale Alternative (${SEASON_LABELS[season]}): statt "${r.seasonalSwap.von}" → "${alt}"</div>`;
+    }
+  }
+
+  return`<div class="recipe-detail-overlay" onclick="if(event.target===this)closeDetail()">
+    <div class="recipe-detail-sheet">
+      <div class="card-title" style="margin-bottom:8px">${r.name}</div>
+      <div class="recipe-badges">${seasonBadges}<span class="type-badge${r.type==='snack'?' snack':''}">${r.type==='snack'?'Snack':'Mittag'}</span></div>
+
+      <div class="portion-row">
+        <button class="portion-btn" onclick="changePortions(-1)">−</button>
+        <div class="portion-val">${portions} Port.</div>
+        <button class="portion-btn" onclick="changePortions(1)">+</button>
+      </div>
+
+      <div class="card" style="margin-bottom:12px">
+        <div class="recipe-ingredients-label">Zutaten (für ${portions} Portion${portions>1?'en':''})</div>
+        ${(r.ingredients||[]).map(ing=>`
+          <div class="recipe-ingredient">
+            <span>${ing.item}</span>
+            <span class="recipe-ingredient-amt">${Math.round(ing.grams*portions)} ${ing.unit||'g'}</span>
+          </div>`).join('')}
+      </div>
+
+      ${seasonalNote}
+
+      <div class="card" style="margin-top:12px">
+        <div class="recipe-ingredients-label">TM7-Zubereitung</div>
+        <div class="recipe-steps">
+          ${(r.tm7Steps||[]).map((step,i)=>`<div class="recipe-step"><span class="recipe-step-num">${i+1}.</span>${step}</div>`).join('')}
+        </div>
+      </div>
+
+      <button class="btn-primary green" onclick="logRecipeToNutrition('${r.id}')">✓ ZU MAHLZEITEN LOGGEN (${portions} Port.)</button>
+      <button class="btn-sm" style="width:100%;margin-top:8px" onclick="saveRecipeAsTemplate('${r.id}')">💾 Als Vorlage in Ernährungs-App speichern</button>
+      <button class="detail-close" onclick="closeDetail()">Schließen</button>
+    </div>
+  </div>`;
+}
+
+// ═══ AKTIONEN ══════════════════════════════════════════════════════
+function switchTab(t){S.tab=t;S.logSuccess='';render();}
+
+function refreshRecipes(){
+  const current=currentShown[S.tab].map(r=>r.id);
+  currentShown[S.tab]=pickRecipes(S.tab,current);
+  render();
+}
+
+function openDetail(id){
+  S.detailRecipe=id;
+  S.detailPortions=2;
+  render();
+}
+function closeDetail(){
+  S.detailRecipe=null;
+  render();
+}
+function changePortions(delta){
+  S.detailPortions=Math.max(1,Math.min(8,S.detailPortions+delta));
+  render();
+}
+
+function logRecipeToNutrition(id){
+  const r=TM7_RECIPES.find(x=>x.id===id);
+  if(!r)return;
+  const portions=S.detailPortions;
+  const{sum,missing}=calcNutritionFromIngredients(r.ingredients,portions);
+  if(missing.length>0){
+    alert(`Achtung: folgende Zutaten wurden nicht in der Lebensmitteldatenbank gefunden und NICHT mitgerechnet: ${missing.join(', ')}.\n\nDu kannst sie in der Ernährungs-App unter "+ Eigenes" ergänzen.`);
+  }
+  const meal={
+    name:`${r.name} (TM7, ${portions} Port.)`,
+    time:timeNow(),
+    k:Math.round(sum.k),p:Math.round(sum.p),c:Math.round(sum.c),
+    f:Math.round(sum.f),fi:Math.round(sum.fi),
+    mg:Math.round(sum.mg),ca:Math.round(sum.ca),fe2:Math.round(sum.fe),
+    zn:Math.round(sum.zn),po:Math.round(sum.po),
+    o3:parseFloat(sum.o3.toFixed(1)),vd:parseFloat(sum.vd.toFixed(1)),
+    _raw:r.ingredients.map(ing=>`${Math.round(ing.grams*portions)}g ${ing.item}`).join(', '),
+    _tm7Id:r.id,
+  };
+  const day=getTodayData();
+  if(!day.meals)day.meals=[];
+  day.meals.push(meal);
+  saveTodayData(day);
+  S.detailRecipe=null;
+  S.logSuccess=`"${r.name}" wurde ins heutige Log übernommen (${Math.round(sum.k)} kcal).`;
+  render();
+}
+
+function saveRecipeAsTemplate(id){
+  const r=TM7_RECIPES.find(x=>x.id===id);
+  if(!r)return;
+  const portions=S.detailPortions;
+  const{sum}=calcNutritionFromIngredients(r.ingredients,portions);
+  const items=r.ingredients.map(ing=>({foodName:ing.item,grams:Math.round(ing.grams*portions)}));
+  const template={
+    name:`${r.name} (TM7)`,
+    k:Math.round(sum.k),p:Math.round(sum.p),c:Math.round(sum.c),f:Math.round(sum.f),
+    items,
+    createdAt:new Date().toISOString(),
+    _tm7Id:r.id,
+  };
+  const d=loadN();
+  if(!d.mealTemplates)d.mealTemplates=[];
+  // Doppelte Vorlage vermeiden (gleiches TM7-Rezept + gleiche Portionenzahl)
+  const exists=d.mealTemplates.some(t=>t._tm7Id===r.id&&t.name===template.name);
+  if(!exists){
+    d.mealTemplates.push(template);
+    saveN({mealTemplates:d.mealTemplates});
+  }
+  S.detailRecipe=null;
+  S.logSuccess=`"${r.name}" wurde als Vorlage in der Ernährungs-App gespeichert.`;
+  render();
+}
+
+// ═══ PWA UPDATE ════════════════════════════════════════════════════
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').then(reg=>{
+    reg.addEventListener('updatefound',()=>{
+      const newWorker=reg.installing;
+      newWorker.addEventListener('statechange',()=>{
+        if(newWorker.state==='installed'&&navigator.serviceWorker.controller){
+          const banner=document.createElement('div');
+          banner.innerHTML=`<div style="position:fixed;bottom:0;left:0;right:0;background:#1b5e20;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;z-index:999;font-family:'Courier New',monospace;font-size:13px;font-weight:600">
+            <span>🔄 App-Update verfügbar</span>
+            <button onclick="updateApp()" style="background:#fff;color:#1b5e20;border:none;border-radius:7px;padding:8px 16px;font-family:'Courier New',monospace;font-size:12px;font-weight:700;cursor:pointer">JETZT AKTUALISIEREN</button>
+          </div>`;
+          document.body.appendChild(banner);
+        }
+      });
+    });
+  }).catch(()=>{});
+}
+
+function updateApp(){
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.getRegistrations().then(regs=>{
+      Promise.all(regs.map(r=>r.unregister())).then(()=>{
+        caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))).then(()=>{
+          window.location.reload(true);
+        });
+      });
+    });
+  } else {
+    window.location.reload(true);
+  }
+}
+
+render();
+</script>
+</body>
+</html>

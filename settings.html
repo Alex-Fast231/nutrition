@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="theme-color" content="#f7f6f2"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="Ernährung"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icon.png"/>
+<title>Einstellungen · Ernährungs-Coach</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#f0ede8;color:#111;font-family:'Georgia','Times New Roman',serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none;font-size:16px}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:#c0bdb5;border-radius:2px}
+#app{max-width:680px;margin:0 auto;min-height:100dvh}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(240,237,232,.97);backdrop-filter:blur(12px);border-bottom:2px solid #d4d0c8;padding:13px 16px;display:flex;align-items:center;justify-content:space-between}
+.topbar-left{min-width:0}
+.topbar-sub{font-size:11px;letter-spacing:.2em;color:#666;font-family:'Courier New',monospace;text-transform:uppercase;margin-bottom:2px;font-weight:600}
+.topbar-title{font-size:17px;color:#111}
+.topbar-right{display:flex;gap:8px;align-items:center;flex-shrink:0;margin-left:10px}
+.nav-link{font-size:12px;font-family:'Courier New',monospace;color:#444;text-decoration:none;padding:7px 13px;border:2px solid #bbb;border-radius:14px;white-space:nowrap;font-weight:600}
+.nav-link:hover{color:#111;border-color:#888}
+.nav-link.active{background:#111;color:#fff;border-color:#111}
+.content{padding:16px 16px 40px}
+.card{background:#fff;border:1.5px solid #d4d0c8;border-radius:14px;padding:18px;margin-bottom:14px;box-shadow:0 2px 6px rgba(0,0,0,.07)}
+.card-title{font-size:12px;letter-spacing:.18em;color:#555;text-transform:uppercase;font-family:'Courier New',monospace;margin-bottom:14px;font-weight:700}
+.section-title{font-size:12px;font-family:'Courier New',monospace;letter-spacing:.15em;text-transform:uppercase;color:#444;margin-bottom:14px;font-weight:700}
+.field-label{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:#444;font-family:'Courier New',monospace;display:block;margin-bottom:7px;font-weight:700}
+.field-input{width:100%;background:#fff;border:1.5px solid #bbb;border-radius:9px;padding:11px 13px;color:#111;font-size:14px;outline:none;font-family:'Courier New',monospace}
+.field-input:focus{border-color:#111}
+select.field-input{cursor:pointer}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-primary{background:#111;color:#fff;border:none;border-radius:9px;padding:13px 18px;font-size:14px;font-family:'Courier New',monospace;letter-spacing:.07em;cursor:pointer;width:100%;margin-top:10px;transition:opacity .15s;font-weight:700}
+.btn-primary:hover{opacity:.85}
+.btn-primary:disabled{opacity:.4;cursor:default}
+.btn-secondary{background:#f5f2ed;color:#333;border:1.5px solid #bbb;border-radius:9px;padding:12px 16px;font-size:13px;font-family:'Courier New',monospace;cursor:pointer;width:100%;margin-top:9px;transition:all .15s;text-align:center;font-weight:600}
+.btn-secondary:hover{background:#e8e4dc}
+.btn-danger{background:#fff5f5;color:#b71c1c;border:1.5px solid #ef9a9a;border-radius:9px;padding:12px 16px;font-size:13px;font-family:'Courier New',monospace;cursor:pointer;width:100%;margin-top:9px;transition:all .15s;font-weight:700}
+.btn-danger:hover{background:#ffebee}
+.info-box{background:#e8f5e9;border:1.5px solid #a5d6a7;border-radius:9px;padding:11px 14px;font-size:13px;color:#1b5e20;font-family:'Courier New',monospace;margin-bottom:11px;line-height:1.55;font-weight:600}
+.warn-box{background:#fffde7;border:1.5px solid #f9a825;border-radius:9px;padding:11px 14px;font-size:13px;color:#4e342e;font-family:'Courier New',monospace;margin-bottom:11px;line-height:1.55;font-weight:600}
+.error-box{background:#fff5f5;border:1.5px solid #ef9a9a;border-radius:9px;padding:11px 14px;font-size:13px;color:#b71c1c;font-family:'Courier New',monospace;margin-bottom:11px;line-height:1.55;font-weight:600}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #e8e4dc;font-size:14px}
+.stat-row:last-child{border-bottom:none}
+.stat-row-label{color:#444;font-weight:400}
+.stat-row-val{font-family:'Courier New',monospace;color:#111;font-weight:600}
+.migration-item{padding:6px 0;font-size:13px;font-family:'Courier New',monospace;color:#1b5e20;border-bottom:1px solid #e8e4dc;font-weight:600}
+.migration-item:last-child{border-bottom:none}
+.confirm-box{background:#fff3e0;border:1.5px solid #ffb74d;border-radius:11px;padding:17px;margin-top:11px}
+.confirm-title{font-size:15px;color:#bf360c;margin-bottom:9px;font-weight:600}
+.confirm-text{font-size:13px;font-family:'Courier New',monospace;color:#4e342e;margin-bottom:13px;line-height:1.55}
+.subtab-row{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.subtab{padding:8px 16px;border-radius:16px;border:2px solid #bbb;font-size:12px;font-family:'Courier New',monospace;cursor:pointer;background:#fff;color:#444;transition:all .15s;font-weight:600}
+.subtab.active{background:#111;border-color:#111;color:#fff}
+.custom-food-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #e8e4dc;font-size:14px}
+.custom-food-row:last-child{border-bottom:none}
+.del-btn{background:none;border:none;color:#bbb;font-size:20px;cursor:pointer;padding:0 0 0 8px;font-weight:600}
+.del-btn:hover{color:#e53935}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// STORAGE
+// ═══════════════════════════════════════════════════════════════════
+const N_KEY='nutrition_app_data';
+const T_KEY='training_app_data';
+function ls(k,fb){try{const v=localStorage.getItem(k);return v?JSON.parse(v):fb;}catch{return fb;}}
+function lss(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+function loadN(){return ls(N_KEY,{});}
+function saveN(patch){const d={...loadN(),...patch,_version:1,_updated:new Date().toISOString()};lss(N_KEY,d);}
+function loadT(){return ls(T_KEY,{});}
+
+// ═══════════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════════
+function todayKey(){return new Date().toISOString().split('T')[0];}
+function fmtDate(iso){
+  if(!iso) return '–';
+  try{return new Date(iso).toLocaleDateString('de',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});}
+  catch{return iso;}
+}
+function formatBytes(bytes){
+  if(bytes<1024) return bytes+'B';
+  if(bytes<1024*1024) return Math.round(bytes/1024)+'KB';
+  return (bytes/1024/1024).toFixed(1)+'MB';
+}
+function getStorageSize(){
+  let total=0;
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    total+=(localStorage.getItem(k)||'').length*2;
+  }
+  return total;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════
+const S={
+  tab:'profile',
+  profile:{},
+  msg:'',msgType:'info',
+  confirmReset:null, // 'nutrition' | 'all'
+  migReport:null,
+  savedBadge:false,
+};
+
+// Profil laden
+(function(){
+  const d=loadN();
+  S.profile={...{weight:'',height:'',age:'',gender:'male',goal:'recomp',activityLevel:'moderate'},...(d.profile||{})};
+})();
+
+// ═══════════════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════════════
+function render(){
+  document.getElementById('app').innerHTML=renderHeader()+`<div class="content">${renderBody()}</div>`;
+}
+
+function renderHeader(){
+  return`<div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-sub">Ernährungs-Coach</div>
+      <div class="topbar-title">Einstellungen</div>
+    </div>
+    <div class="topbar-right">
+      ${S.savedBadge?'<span style="font-size:12px;font-family:\'Courier New\',monospace;color:#2e7d32">✓ Gespeichert</span>':''}
+      <a href="index.html" class="nav-link">Log</a>
+      <a href="coach.html" class="nav-link">Coach</a>
+      <a href="tm7.html" class="nav-link">TM7</a>
+      <a href="settings.html" class="nav-link active">⚙</a>
+    </div>
+  </div>`;
+}
+
+function renderBody(){
+  return`
+  <div class="subtab-row">
+    <button class="subtab${S.tab==='profile'?' active':''}" onclick="S.tab='profile';render()">Profil</button>
+    <button class="subtab${S.tab==='data'?' active':''}" onclick="S.tab='data';render()">Daten</button>
+    <button class="subtab${S.tab==='backup'?' active':''}" onclick="S.tab='backup';render()">Backup</button>
+    <button class="subtab${S.tab==='reset'?' active':''}" onclick="S.tab='reset';render()">Reset</button>
+  </div>
+  ${S.msg?`<div class="${S.msgType==='error'?'error-box':S.msgType==='warn'?'warn-box':'info-box'}" style="margin-bottom:14px">${S.msg}</div>`:''}
+  ${S.tab==='profile'?renderProfile():''}
+  ${S.tab==='data'?renderData():''}
+  ${S.tab==='backup'?renderBackup():''}
+  ${S.tab==='reset'?renderReset():''}`;
+}
+
+// ─── PROFIL ───────────────────────────────────────────────────────
+function renderProfile(){
+  const p=S.profile;
+  return`
+  <div class="card">
+    <div class="section-title">Körperdaten</div>
+    <div class="grid-2" style="margin-bottom:10px">
+      <div>
+        <label class="field-label">Gewicht (kg)</label>
+        <input class="field-input" type="number" step="0.1" placeholder="80" value="${p.weight||''}" oninput="S.profile.weight=this.value"/>
+      </div>
+      <div>
+        <label class="field-label">Größe (cm)</label>
+        <input class="field-input" type="number" placeholder="178" value="${p.height||''}" oninput="S.profile.height=this.value"/>
+      </div>
+      <div>
+        <label class="field-label">Alter</label>
+        <input class="field-input" type="number" placeholder="30" value="${p.age||''}" oninput="S.profile.age=this.value"/>
+      </div>
+      <div>
+        <label class="field-label">Geschlecht</label>
+        <select class="field-input" onchange="S.profile.gender=this.value">
+          <option value="male"${p.gender==='male'?' selected':''}>Männlich</option>
+          <option value="female"${p.gender==='female'?' selected':''}>Weiblich</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Ziel & Aktivität</div>
+    <div class="grid-2">
+      <div>
+        <label class="field-label">Trainingsziel</label>
+        <select class="field-input" onchange="S.profile.goal=this.value">
+          <option value="recomp"${p.goal==='recomp'?' selected':''}>Recomp (Muskel + Fett)</option>
+          <option value="bulk"${p.goal==='bulk'?' selected':''}>Muskelaufbau</option>
+          <option value="cut"${p.goal==='cut'?' selected':''}>Fettabbau</option>
+        </select>
+      </div>
+      <div>
+        <label class="field-label">Aktivitätslevel</label>
+        <select class="field-input" onchange="S.profile.activityLevel=this.value">
+          <option value="low"${p.activityLevel==='low'?' selected':''}>Leicht aktiv</option>
+          <option value="moderate"${p.activityLevel==='moderate'?' selected':''}>Moderat aktiv</option>
+          <option value="high"${p.activityLevel==='high'?' selected':''}>Sehr aktiv</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="border-left:3px solid #c8e6c8">
+    <div class="section-title">🔗 Trainings-App Verbindung</div>
+    <p style="font-size:12px;font-family:'Courier New',monospace;color:#888;margin-bottom:10px;line-height:1.5">
+      Beide Apps müssen unter demselben GitHub Pages Account laufen (z.B. <em>deinname.github.io/training</em> und <em>deinname.github.io/ernaehrung</em>). Der Trainingstag wird dann automatisch erkannt.
+    </p>
+    ${checkTrainingSync()}
+  </div>
+
+  <button class="btn-primary" onclick="saveProfile()">PROFIL SPEICHERN</button>`;
+}
+
+function checkTrainingSync(){
+  try{
+    const t=ls(T_KEY,null);
+    if(!t) return`<div style="font-size:12px;font-family:'Courier New',monospace;color:#aaa">– Trainings-App nicht verbunden (kein ${T_KEY} in localStorage)</div>`;
+    const logCount=Object.values(t.log||{}).reduce((a,b)=>a+(b||[]).length,0);
+    const lastMig=t._migratedAt?fmtDate(t._migratedAt):'unbekannt';
+    return`<div style="font-size:12px;font-family:'Courier New',monospace;color:#2e7d32">
+      ✓ Trainings-App verbunden · Version ${t._version||'?'} · ${logCount} Logeinträge · Migration: ${lastMig}
+    </div>`;
+  }catch{return`<div style="font-size:12px;font-family:'Courier New',monospace;color:#aaa">– Fehler beim Lesen der Trainings-App-Daten</div>`;}
+}
+
+// ─── DATEN ────────────────────────────────────────────────────────
+function renderData(){
+  const d=loadN();
+  const days=d.days||{};
+  const dayKeys=Object.keys(days).sort();
+  const totalMeals=dayKeys.reduce((a,k)=>a+(days[k].meals||[]).length,0);
+  const customFoods=d.customFoods||{};
+  const wlog=d.weightLog||{};
+  const wEntries=Object.keys(wlog).length;
+
+  return`
+  <div class="card">
+    <div class="section-title">Datenübersicht</div>
+    <div class="stat-row"><span class="stat-row-label">Geloggte Tage</span><span class="stat-row-val">${dayKeys.length}</span></div>
+    <div class="stat-row"><span class="stat-row-label">Geloggte Mahlzeiten</span><span class="stat-row-val">${totalMeals}</span></div>
+    <div class="stat-row"><span class="stat-row-label">Gewichtseinträge</span><span class="stat-row-val">${wEntries}</span></div>
+    <div class="stat-row"><span class="stat-row-label">Eigene Lebensmittel</span><span class="stat-row-val">${Object.keys(customFoods).length}</span></div>
+    <div class="stat-row"><span class="stat-row-label">Datenbankgröße</span><span class="stat-row-val">${formatBytes(getStorageSize())}</span></div>
+    <div class="stat-row"><span class="stat-row-label">Zuletzt aktualisiert</span><span class="stat-row-val">${fmtDate(d._updated)}</span></div>
+    <div class="stat-row"><span class="stat-row-label">Migration</span><span class="stat-row-val">${d._migrated?'✓ '+fmtDate(d._migratedAt):'–'}</span></div>
+  </div>
+
+  ${Object.keys(customFoods).length>0?`
+  <div class="card">
+    <div class="section-title">Eigene Lebensmittel</div>
+    ${Object.entries(customFoods).map(([k,f])=>`
+      <div class="custom-food-row">
+        <div>
+          <div style="font-size:13px;color:#1a1a1a">${f.n}</div>
+          <div style="font-size:11px;font-family:'Courier New',monospace;color:#888">${f.k}kcal · ${f.p}g P · ${f.c}g K · ${f.f}g F / 100g</div>
+        </div>
+        <button class="del-btn" onclick="deleteCustomFood('${k}')">×</button>
+      </div>`).join('')}
+  </div>`:''}
+
+  <div class="card">
+    <div class="section-title">Migration alter Daten</div>
+    <p style="font-size:12px;font-family:'Courier New',monospace;color:#888;margin-bottom:12px;line-height:1.5">
+      Überprüft alte nc_-Keys und übernimmt vorhandene Daten in die neue Struktur.
+    </p>
+    <button class="btn-secondary" onclick="runMigration()">Migration erneut ausführen</button>
+    ${S.migReport?renderMigReport():''}
+  </div>`;
+}
+
+function renderMigReport(){
+  const r=S.migReport;
+  return`<div style="margin-top:12px;background:#f0faf0;border:1px solid #c8e6c8;border-radius:8px;padding:12px">
+    <div style="font-size:11px;font-family:'Courier New',monospace;color:#2e7d32;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">Migrationsbericht</div>
+    ${r.map(line=>`<div class="migration-item">${line}</div>`).join('')}
+  </div>`;
+}
+
+// ─── BACKUP ───────────────────────────────────────────────────────
+function renderBackup(){
+  const d=loadN();
+  const lastBackup=d._lastBackup;
+
+  return`
+  <div class="card">
+    <div class="section-title">Export</div>
+    <p style="font-size:12px;font-family:'Courier New',monospace;color:#888;margin-bottom:12px;line-height:1.5">
+      Exportiere deine Daten als JSON-Datei. Empfehlung: wöchentlich sichern.
+    </p>
+    ${lastBackup?`<div class="info-box">Letztes Backup: ${fmtDate(lastBackup)}</div>`:''}
+    <button class="btn-secondary" onclick="exportNutrition()">📥 Ernährung exportieren</button>
+    <button class="btn-secondary" onclick="exportAll()">📥 Gesamtbackup (Training + Ernährung)</button>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Import</div>
+    <div class="warn-box">⚠ Import führt Daten zusammen. Bestehende Einträge werden nicht überschrieben, nur neue hinzugefügt.</div>
+    <label class="field-label" style="margin-top:8px">Backup-Datei auswählen</label>
+    <input type="file" accept=".json" id="import-file" onchange="handleImport(this)" style="font-size:13px;font-family:'Courier New',monospace;color:#555;margin-bottom:10px;width:100%"/>
+  </div>`;
+}
+
+// ─── RESET ────────────────────────────────────────────────────────
+function renderReset(){
+  return`
+  <div class="card">
+    <div class="section-title">App aktualisieren</div>
+    <p style="font-size:13px;font-family:'Courier New',monospace;color:#555;margin-bottom:12px;line-height:1.55;font-weight:600">
+      Nach dem Hochladen neuer Dateien auf GitHub: Cache leeren und App neu laden. Alle Logs und Daten bleiben erhalten.
+    </p>
+    <button class="btn-secondary" onclick="forceUpdate()">🔄 Cache leeren & App aktualisieren</button>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Daten löschen</div>
+    <div class="warn-box">⚠ Alle gelöschten Daten sind unwiderruflich verloren. Bitte vorher ein Backup exportieren.</div>
+
+    <button class="btn-danger" onclick="confirmReset('nutrition')">🗑 Nur Ernährungsdaten löschen</button>
+    <button class="btn-danger" onclick="confirmReset('all')" style="margin-top:6px">🗑 Gesamte Health-App-Daten löschen</button>
+
+    ${S.confirmReset?renderConfirmBox():''}
+  </div>`;
+}
+
+function renderConfirmBox(){
+  const isAll=S.confirmReset==='all';
+  return`<div class="confirm-box">
+    <div class="confirm-title">⚠ ${isAll?'Gesamtreset':'Ernährungsdaten löschen'}</div>
+    <div class="confirm-text">
+      ${isAll
+        ?'Es werden ALLE Daten gelöscht: Ernährung, Training, Mahlzeiten, Gewicht, Profil, eigene Lebensmittel und alle alten Keys (nc_, fp_, fp2_, fp3_).'
+        :'Es werden alle Ernährungsdaten gelöscht: Mahlzeiten, Gewicht, Profil, eigene Lebensmittel und nc_-Keys. Trainingsdaten bleiben erhalten.'}
+      <br/><br/>Bitte vorher Backup exportieren!
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-danger" style="flex:1;margin-top:0" onclick="executeReset()">Endgültig löschen</button>
+      <button class="btn-secondary" style="flex:1;margin-top:0" onclick="S.confirmReset=null;render()">Abbrechen</button>
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// AKTIONEN
+// ═══════════════════════════════════════════════════════════════════
+function saveProfile(){
+  saveN({profile:S.profile});
+  S.savedBadge=true;
+  setMsg('Profil gespeichert.','info');
+  render();
+  setTimeout(()=>{S.savedBadge=false;render();},2500);
+}
+
+function setMsg(text,type='info'){
+  S.msg=text;S.msgType=type;
+  setTimeout(()=>{S.msg='';render();},4000);
+}
+
+function deleteCustomFood(key){
+  if(!confirm(`Eigenes Lebensmittel löschen?`)) return;
+  const d=loadN();
+  delete d.customFoods[key];
+  saveN({customFoods:d.customFoods});
+  setMsg('Lebensmittel gelöscht.','info');
+  render();
+}
+
+// ─── MIGRATION ────────────────────────────────────────────────────
+function runMigration(){
+  const report=[];
+  const d=loadN();
+  const days=d.days||{};
+  let added=0;
+
+  // Alte nc_day_ Keys
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(k&&k.startsWith('nc_day_')){
+      const date=k.replace('nc_day_','');
+      if(!days[date]){
+        try{
+          days[date]=JSON.parse(localStorage.getItem(k));
+          added++;
+        }catch{}
+      }
+    }
+  }
+  if(added>0) report.push(`✓ ${added} alte Tageslogs übernommen`);
+  else report.push('– Keine neuen nc_day_-Einträge gefunden');
+
+  // Altes nc_weight_log
+  const oldWlog=ls('nc_weight_log',null);
+  if(oldWlog){
+    const wlog=d.weightLog||{};
+    let wAdded=0;
+    Object.entries(oldWlog).forEach(([k,v])=>{if(!wlog[k]){wlog[k]=v;wAdded++;}});
+    if(wAdded>0){report.push(`✓ ${wAdded} Gewichtseinträge migriert`);saveN({weightLog:wlog});}
+    else report.push('– Gewichtslog: keine neuen Einträge');
+  }
+
+  // Altes nc_settings → Profil
+  const oldSettings=ls('nc_settings',null);
+  if(oldSettings&&!d.profile?.weight){
+    const profile={
+      weight:oldSettings.weight||'',height:oldSettings.height||'',
+      age:oldSettings.age||'',gender:oldSettings.gender||'male',
+      goal:oldSettings.goal||'recomp',activityLevel:oldSettings.activityLevel||'moderate'
+    };
+    saveN({profile});
+    S.profile={...S.profile,...profile};
+    report.push('✓ Profil aus nc_settings migriert');
+  } else {
+    report.push('– nc_settings: bereits vorhanden oder kein Profil');
+  }
+
+  // Tage speichern
+  saveN({days,_migrated:true,_migratedAt:new Date().toISOString()});
+
+  // Training Keys prüfen
+  const tData=ls(T_KEY,null);
+  if(tData){
+    const logCount=Object.values(tData.log||{}).reduce((a,b)=>a+(b||[]).length,0);
+    report.push(`✓ Trainings-App (${T_KEY}): ${logCount} Logeinträge verbunden`);
+  } else {
+    report.push('– Trainings-App: kein training_app_data gefunden');
+  }
+
+  S.migReport=report;
+  render();
+}
+
+// ─── EXPORT ───────────────────────────────────────────────────────
+function exportNutrition(){
+  const d=loadN();
+  const backup={
+    type:'nutrition_backup',
+    version:1,
+    exportedAt:new Date().toISOString(),
+    data:d
+  };
+  downloadJSON(backup,`ernaehrung_backup_${todayKey()}.json`);
+  saveN({_lastBackup:new Date().toISOString()});
+  setMsg('Ernährungs-Backup exportiert.','info');
+  render();
+}
+
+function exportAll(){
+  const nData=loadN();
+  const tData=loadT();
+  const backup={
+    type:'health_hub_backup',
+    version:1,
+    exportedAt:new Date().toISOString(),
+    nutrition:nData,
+    training:tData
+  };
+  downloadJSON(backup,`health_backup_${todayKey()}.json`);
+  saveN({_lastBackup:new Date().toISOString()});
+  setMsg('Gesamtbackup exportiert.','info');
+  render();
+}
+
+function downloadJSON(obj,filename){
+  const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=filename;
+  document.body.appendChild(a);a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ─── IMPORT ───────────────────────────────────────────────────────
+function handleImport(input){
+  const file=input.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const backup=JSON.parse(e.target.result);
+      if(!backup.type) throw new Error('Ungültiges Backup-Format');
+
+      if(backup.type==='nutrition_backup'||backup.type==='health_hub_backup'){
+        const importData=backup.nutrition||backup.data;
+        if(!importData) throw new Error('Keine Ernährungsdaten im Backup');
+        mergeNutritionData(importData);
+      }
+
+      if(backup.type==='health_hub_backup'&&backup.training){
+        mergeTrainingData(backup.training);
+      }
+
+      setMsg('Import erfolgreich. Daten wurden zusammengeführt.','info');
+      render();
+    }catch(err){
+      setMsg('Import-Fehler: '+err.message,'error');
+      render();
+    }
+  };
+  reader.readAsText(file);
+}
+
+function mergeNutritionData(importData){
+  const existing=loadN();
+  // Tage zusammenführen
+  const days={...(existing.days||{})};
+  Object.entries(importData.days||{}).forEach(([date,day])=>{
+    if(!days[date]) days[date]=day;
+    else {
+      // Mahlzeiten zusammenführen (keine Duplikate per Zeit)
+      const existingTimes=new Set((days[date].meals||[]).map(m=>m.time));
+      (day.meals||[]).forEach(m=>{if(!existingTimes.has(m.time))days[date].meals.push(m);});
+    }
+  });
+  // Gewicht zusammenführen
+  const wlog={...(existing.weightLog||{}),...(importData.weightLog||{})};
+  // Eigene Lebensmittel zusammenführen
+  const custom={...(importData.customFoods||{}),...(existing.customFoods||{})};
+  // Profil: nur wenn noch leer
+  const profile=existing.profile?.weight?existing.profile:(importData.profile||existing.profile||{});
+  saveN({days,weightLog:wlog,customFoods:custom,profile});
+}
+
+function mergeTrainingData(importData){
+  const existing=loadT();
+  // Log zusammenführen
+  const log={...(existing.log||{})};
+  Object.entries(importData.log||{}).forEach(([exId,entries])=>{
+    if(!log[exId]) log[exId]=entries;
+    else{
+      const existDates=new Set(log[exId].map(e=>e.date));
+      entries.forEach(e=>{if(!existDates.has(e.date))log[exId].push(e);});
+    }
+  });
+  // Gewicht
+  const wlog=[...(existing.weightLog||[])];
+  if(importData.weightLog&&importData.weightLog.length>wlog.length) wlog.push(...importData.weightLog.slice(wlog.length));
+  lss(T_KEY,{...existing,...importData,log,weightLog:wlog,_migrated:true,_version:existing._version||5});
+}
+
+// ─── RESET ────────────────────────────────────────────────────────
+function confirmReset(type){
+  S.confirmReset=type;
+  render();
+}
+
+function executeReset(){
+  const type=S.confirmReset;
+  if(!type) return;
+
+  // Nutrition Keys immer löschen
+  localStorage.removeItem(N_KEY);
+  // Alte nc_ Keys
+  const toRemove=[];
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(k&&(k.startsWith('nc_'))) toRemove.push(k);
+  }
+  toRemove.forEach(k=>localStorage.removeItem(k));
+
+  if(type==='all'){
+    // Training Keys
+    localStorage.removeItem(T_KEY);
+    const toRemove2=[];
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(k&&(k.startsWith('fp_')||k.startsWith('fp2_')||k.startsWith('fp3_'))) toRemove2.push(k);
+    }
+    toRemove2.forEach(k=>localStorage.removeItem(k));
+  }
+
+  S.confirmReset=null;
+  S.profile={weight:'',height:'',age:'',gender:'male',goal:'recomp',activityLevel:'moderate'};
+  setMsg(type==='all'?'Alle Daten wurden gelöscht.':'Ernährungsdaten wurden gelöscht.','warn');
+  render();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PWA
+// ═══════════════════════════════════════════════════════════════════
+function forceUpdate(){
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.getRegistrations().then(regs=>{
+      Promise.all(regs.map(r=>r.unregister())).then(()=>{
+        caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))).then(()=>{
+          window.location.reload(true);
+        });
+      });
+    });
+  } else {
+    window.location.reload(true);
+  }
+}
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+render();
+</script>
+</body>
+</html>
